@@ -11,7 +11,7 @@ camera = cv2.VideoCapture(0)  # 0번 카메라 (기본 웹캠 사용)
 async def generate_video_frames():
     while True:
         success, frame = camera.read()
-        if not success:
+            if not success:
             break
         # 프레임을 JPEG 형식으로 인코딩
         _, buffer = cv2.imencode('.jpg', frame)
