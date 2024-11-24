@@ -27,7 +27,7 @@ function App() {
                 <div className="cam1">
                     {/* Raspberry Pi에서 제공하는 스트리밍 */}
                     <img
-                        src="http://165.229.125.102:8000/video_feed:8000/video_feed"
+                        src="http://165.229.125.102:8000/video_feed"
                         alt="Live Stream CAM1"
                         className="camera-video"
                     />

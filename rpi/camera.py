@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Response
+from fastapi.responses import StreamingResponse
 import asyncio
 from picamera2 import Picamera2
 import cv2
@@ -31,4 +32,4 @@ async def generate_video_frames():
 
 @app.get("/video_feed")
 async def video_feed():
-    return Response(generate_video_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
+    return StreamingResponse(generate_video_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
