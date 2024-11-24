@@ -1,30 +1,31 @@
+from picamera2 import Picamera2
 import cv2
 
-# 라즈베리파이 카메라 초기화
-camera = cv2.VideoCapture(0)  # '0'은 기본 카메라 장치를 의미
+# Picamera2 객체 생성
+picam2 = Picamera2()
 
-if not camera.isOpened():
-    print("카메라를 열 수 없습니다.")
-    exit()
+# 카메라 구성 설정
+camera_config = picam2.create_preview_configuration(main={"size": (640, 480)})
+picam2.configure(camera_config)
 
-print("카메라가 성공적으로 열렸습니다. ESC 키를 눌러 종료하세요.")
+# 카메라 시작
+picam2.start()
 
-while True:
-    # 프레임 읽기
-    ret, frame = camera.read()
-    if not ret:
-        print("프레임을 읽을 수 없습니다.")
-        break
+print("카메라가 실행 중입니다. ESC 키를 눌러 종료하세요.")
 
-    # 프레임 표시
-    cv2.imshow('Raspberry Pi Camera Test', frame)
+try:
+    while True:
+        # 프레임 캡처
+        frame = picam2.capture_array()
 
-    # ESC 키를 누르면 종료
-    key = cv2.waitKey(1)
-    if key == 27:  # ESC 키 코드
-        print("프로그램 종료")
-        break
+        # OpenCV로 프레임 표시
+        cv2.imshow("Raspberry Pi Camera Test", frame)
 
-# 카메라 자원 해제
-camera.release()
-cv2.destroyAllWindows()
+        # ESC 키로 종료
+        if cv2.waitKey(1) & 0xFF == 27:  # ESC 키
+            print("프로그램 종료")
+            break
+finally:
+    # 카메라 종료 및 자원 해제
+    picam2.stop()
+    cv2.destroyAllWindows()
