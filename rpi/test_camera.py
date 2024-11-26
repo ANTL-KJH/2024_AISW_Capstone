@@ -1,6 +1,8 @@
 from picamera2 import Picamera2
 import cv2
 
+#uvicorn camera:app --host 0.0.0.0 --port 8000
+#python -m unicorn camera:app --host 0.0.0.0 --port 8000
 # Picamera2 객체 생성
 picam2 = Picamera2()
 
