@@ -17,6 +17,9 @@ output_details = interpreter.get_output_details()
 
 # 모델 입력 크기 (예: 640x640)
 input_shape = input_details[0]['shape'][1:3]
+print("Output Details:")
+for i, detail in enumerate(output_details):
+    print(f"Output {i}: {detail}")
 
 # 레이블 로드
 def load_labels(label_path):
@@ -27,28 +30,18 @@ labels = load_labels(LABELS_PATH)
 
 
 def preprocess_image(image, input_size):
-    """
-    이미지를 모델 입력 크기에 맞게 전처리합니다.
-    """
     # RGBA 이미지를 RGB로 변환
-    if image.shape[-1] == 4:  # 4채널이면
+    if image.shape[2] == 4:  # RGBA 채널 확인
         image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
 
     # 이미지 리사이즈
     img = cv2.resize(image, input_size)
     # 정규화 (0~1 사이 값으로 변환)
     img = img.astype(np.float32) / 255.0
-
-    # 입력 텐서 확인
-    expected_dims = len(input_details[0]['shape'])
-    if expected_dims == 4:
-        # 배치 차원이 필요한 경우 추가
-        img = np.expand_dims(img, axis=0)  # (height, width, 3) -> (1, height, width, 3)
-    elif expected_dims == 3:
-        # 배치 차원이 불필요한 경우 제거
-        img = img.squeeze()  # (1, height, width, 3)
-
+    # 배치 차원 추가 (4D 텐서로 변환)
+    img = np.expand_dims(img, axis=0)
     return img
+
 
 
 # 결과 처리
@@ -69,23 +62,24 @@ def detect_objects(image):
     객체 탐지 수행
     """
     # 입력 데이터 전처리
-    print(f"Original image shape: {image.shape}")  # 원본 이미지 확인
     input_data = preprocess_image(image, input_shape)
-
-    # 입력 데이터 디버깅
-    print(f"Input data shape: {input_data.shape}")  # 모델 입력 데이터 확인
 
     # 모델 실행
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
 
     # 출력 데이터 가져오기
-    boxes = interpreter.get_tensor(output_details[0]['index'])[0]
-    classes = interpreter.get_tensor(output_details[1]['index'])[0]
-    scores = interpreter.get_tensor(output_details[2]['index'])[0]
+    try:
+        boxes = interpreter.get_tensor(output_details[0]['index'])[0]  # 항상 존재
+        classes = interpreter.get_tensor(output_details[1]['index'])[0] if len(output_details) > 1 else []
+        scores = interpreter.get_tensor(output_details[2]['index'])[0] if len(output_details) > 2 else []
+    except IndexError as e:
+        print(f"Error accessing model outputs: {e}")
+        return []
 
     # 탐지 결과 처리
     return process_output((boxes, classes, scores))
+
 
 
 
@@ -109,7 +103,6 @@ def draw_results(image, results):
         cv2.putText(image, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
     return image
 
-# 메인 함수
 def main():
     # Picamera2 객체 생성 및 설정
     picam2 = Picamera2()
@@ -141,6 +134,7 @@ def main():
         # 카메라 종료 및 자원 해제
         picam2.stop()
         cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()
