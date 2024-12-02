@@ -4,7 +4,7 @@ import tensorflow.lite as tflite
 from picamera2 import Picamera2
 
 # 모델 및 레이블 파일 경로
-MODEL_PATH = "best_saved_model/best_float16.tflite"
+MODEL_PATH = "best_saved_model/best_float16_edgetpu.tflite"
 LABELS_PATH = "best_saved_model/labels.txt"  # 모델의 클래스 레이블 파일 (필수)
 
 # TFLite 인터프리터 로드
