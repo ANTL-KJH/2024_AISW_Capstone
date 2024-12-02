@@ -1,0 +1,29 @@
+description: Ultralytics best model trained on C:/Users/lig/Desktop/share/ultralytics-main/custom_train/custom_dataset.yaml
+author: Ultralytics
+date: '2024-12-02T19:46:00.344814'
+version: 8.3.28
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: PASS_DARK
+  1: PASS_FLOW
+  2: PASS_HIGHOPEN
+  3: PASS_LP_CLOSE
+  4: PASS_NORMAL
+  5: PASS_SMALL
+  6: FAIL_BLACK
+  7: FAIL_CRUSHED
+  8: FAIL_CUT
+  9: FAIL_CUT_LP
+  10: FAIL_IPAD
+  11: FAIL_LINE
+  12: FAIL_NOTWORK
+  13: FAIL_SMALLCUT_LP
+  14: FAIL_SMALLCUT
+  15: FAIL_SPECIAL
