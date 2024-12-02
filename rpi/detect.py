@@ -30,11 +30,24 @@ labels = load_labels(LABELS_PATH)
 
 
 def preprocess_image(image, input_size):
-    if image.shape[2] == 4:
+    # RGBA → RGB 변환
+    if image.shape[2] == 4:  # RGBA 채널 확인
         image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+
+    # 이미지 리사이즈
     img = cv2.resize(image, input_size)
-    img = img.astype(np.uint8)  # Edge TPU는 uint8 데이터 필요
-    img = np.expand_dims(img, axis=0)  # 배치 차원 추가 (1, H, W, C)
+
+    # 정량화된 모델에 맞게 데이터 변환
+    input_type = input_details[0]['dtype']
+    if input_type == np.uint8:
+        scale, zero_point = input_details[0]['quantization']
+        img = img / 255.0  # 정규화
+        img = (img / scale + zero_point).astype(np.uint8)  # 정량화 적용
+    else:
+        img = img.astype(np.float32) / 255.0  # FLOAT32 모델의 경우
+
+    # 배치 차원 추가 (4D 텐서로 변환)
+    img = np.expand_dims(img, axis=0)
     return img
 
 
