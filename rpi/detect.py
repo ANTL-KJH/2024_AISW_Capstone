@@ -69,10 +69,11 @@ def detect_objects(image):
     객체 탐지 수행
     """
     # 입력 데이터 전처리
+    print(f"Original image shape: {image.shape}")  # 원본 이미지 확인
     input_data = preprocess_image(image, input_shape)
 
     # 입력 데이터 디버깅
-    print(f"Input data shape: {input_data.shape}")  # 추가 디버깅 출력
+    print(f"Input data shape: {input_data.shape}")  # 모델 입력 데이터 확인
 
     # 모델 실행
     interpreter.set_tensor(input_details[0]['index'], input_data)
@@ -85,6 +86,7 @@ def detect_objects(image):
 
     # 탐지 결과 처리
     return process_output((boxes, classes, scores))
+
 
 
 # 결과 시각화
