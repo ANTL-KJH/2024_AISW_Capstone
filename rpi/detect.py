@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import tensorflow.lite as tflite
+from picamera2 import Picamera2
 
 # 모델 및 레이블 파일 경로
 MODEL_PATH = "yolov8m_saved_model/yolov8m_float16.tflite"
@@ -83,30 +84,36 @@ def draw_results(image, results):
 
 # 메인 함수
 def main():
-    # 카메라 또는 이미지 파일에서 입력 받기
-    cap = cv2.VideoCapture(0)  # USB 카메라 사용
-    # cap = cv2.VideoCapture('test_image.jpg')  # 이미지 파일 사용
+    # Picamera2 객체 생성 및 설정
+    picam2 = Picamera2()
+    camera_config = picam2.create_preview_configuration(main={"size": (640, 480)})
+    picam2.configure(camera_config)
+    picam2.start()
 
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+    print("카메라가 실행 중입니다. ESC 키를 눌러 종료하세요.")
 
-        # 객체 탐지 수행
-        results = detect_objects(frame)
+    try:
+        while True:
+            # 프레임 캡처
+            frame = picam2.capture_array()
 
-        # 결과 시각화
-        result_image = draw_results(frame, results)
+            # 객체 탐지 수행
+            results = detect_objects(frame)
 
-        # 화면에 결과 출력
-        cv2.imshow('Detection', result_image)
+            # 결과 시각화
+            result_image = draw_results(frame, results)
 
-        # 'q' 키를 누르면 종료
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            # 화면에 결과 출력
+            cv2.imshow("Detection", result_image)
 
-    cap.release()
-    cv2.destroyAllWindows()
+            # ESC 키로 종료
+            if cv2.waitKey(1) & 0xFF == 27:  # ESC 키
+                print("프로그램 종료")
+                break
+    finally:
+        # 카메라 종료 및 자원 해제
+        picam2.stop()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
