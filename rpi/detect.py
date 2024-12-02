@@ -14,8 +14,6 @@ interpreter.allocate_tensors()
 # 입력 및 출력 텐서 정보 가져오기
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
-print("입력 텐서 세부 사항:", input_details)
-
 
 # 모델 입력 크기 (예: 640x640)
 input_shape = input_details[0]['shape'][1:3]
@@ -29,9 +27,12 @@ labels = load_labels(LABELS_PATH)
 
 # 이미지 전처리
 def preprocess_image(image, input_size):
+    # 이미지 리사이즈
     img = cv2.resize(image, input_size)
-    img = img.astype(np.float32) / 255.0  # 정규화
-    img = np.expand_dims(img, axis=0)    # 배치 차원 추가
+    # 정규화 (0~1 사이 값으로 변환)
+    img = img.astype(np.float32) / 255.0
+    # 배치 차원 추가 (4D 텐서로 변환)
+    img = np.expand_dims(img, axis=0)
     return img
 
 # 결과 처리
