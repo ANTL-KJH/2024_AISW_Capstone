@@ -30,6 +30,10 @@ def preprocess_image(image, input_size):
     """
     이미지를 모델 입력 크기에 맞게 전처리합니다.
     """
+    # RGBA 이미지를 RGB로 변환
+    if image.shape[-1] == 4:  # 4채널이면
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+
     # 이미지 리사이즈
     img = cv2.resize(image, input_size)
     # 정규화 (0~1 사이 값으로 변환)
@@ -42,7 +46,7 @@ def preprocess_image(image, input_size):
         img = np.expand_dims(img, axis=0)  # (height, width, 3) -> (1, height, width, 3)
     elif expected_dims == 3:
         # 배치 차원이 불필요한 경우 제거
-        img = img.squeeze()  # (1, height, width, 3) -> (height, width, 3)
+        img = img.squeeze()  # (1, height, width, 3)
 
     return img
 
