@@ -25,15 +25,27 @@ def load_labels(label_path):
 
 labels = load_labels(LABELS_PATH)
 
-# 이미지 전처리
+
 def preprocess_image(image, input_size):
+    """
+    이미지를 모델 입력 크기에 맞게 전처리합니다.
+    """
     # 이미지 리사이즈
     img = cv2.resize(image, input_size)
     # 정규화 (0~1 사이 값으로 변환)
     img = img.astype(np.float32) / 255.0
-    # 배치 차원 추가 (4D 텐서로 변환)
-    img = np.expand_dims(img, axis=0)
+
+    # 입력 텐서 확인
+    expected_dims = len(input_details[0]['shape'])
+    if expected_dims == 4:
+        # 배치 차원이 필요한 경우 추가
+        img = np.expand_dims(img, axis=0)  # (height, width, 3) -> (1, height, width, 3)
+    elif expected_dims == 3:
+        # 배치 차원이 불필요한 경우 제거
+        img = img.squeeze()  # (1, height, width, 3) -> (height, width, 3)
+
     return img
+
 
 # 결과 처리
 def process_output(output_data, threshold=0.5):
@@ -48,10 +60,15 @@ def process_output(output_data, threshold=0.5):
             })
     return results
 
-# 탐지 함수
 def detect_objects(image):
+    """
+    객체 탐지 수행
+    """
     # 입력 데이터 전처리
     input_data = preprocess_image(image, input_shape)
+
+    # 입력 데이터 디버깅
+    print(f"Input data shape: {input_data.shape}")  # 추가 디버깅 출력
 
     # 모델 실행
     interpreter.set_tensor(input_details[0]['index'], input_data)
@@ -64,6 +81,7 @@ def detect_objects(image):
 
     # 탐지 결과 처리
     return process_output((boxes, classes, scores))
+
 
 # 결과 시각화
 def draw_results(image, results):
