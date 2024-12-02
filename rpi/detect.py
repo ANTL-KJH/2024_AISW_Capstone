@@ -70,17 +70,20 @@ def process_output(output_data, threshold=0.5):
     return results
 
 
-def detect_objects(image, threshold=0.5):
-    # 입력 데이터 전처리
-    input_data = preprocess_image(image, input_size(interpreter))
-
-    # 모델 실행
+def detect_objects(image):
+    input_data = preprocess_image(image, input_shape)
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
 
-    # 모델 출력 가져오기 및 처리
-    objects = get_objects(interpreter, threshold)
-    return objects
+    try:
+        boxes = interpreter.get_tensor(output_details[0]['index'])[0]
+        classes = interpreter.get_tensor(output_details[1]['index'])[0]
+        scores = interpreter.get_tensor(output_details[2]['index'])[0]
+    except IndexError as e:
+        print(f"Error accessing model outputs: {e}")
+        return []
+
+    return process_output((boxes, classes, scores))
 
 
 def draw_results(image, results):
