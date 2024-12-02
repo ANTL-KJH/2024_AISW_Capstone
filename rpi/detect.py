@@ -3,6 +3,12 @@ import numpy as np
 from tflite_runtime.interpreter import Interpreter, load_delegate
 from picamera2 import Picamera2
 
+from pycoral.utils.edgetpu import make_interpreter
+from pycoral.adapters.common import input_size
+from pycoral.adapters.detect import get_objects
+
+
+
 # 모델 및 레이블 파일 경로
 MODEL_PATH = "best_saved_model/best_float16_edgetpu.tflite"
 LABELS_PATH = "best_saved_model/labels.txt"
@@ -64,20 +70,17 @@ def process_output(output_data, threshold=0.5):
     return results
 
 
-def detect_objects(image):
-    input_data = preprocess_image(image, input_shape)
+def detect_objects(image, threshold=0.5):
+    # 입력 데이터 전처리
+    input_data = preprocess_image(image, input_size(interpreter))
+
+    # 모델 실행
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
 
-    try:
-        boxes = interpreter.get_tensor(output_details[0]['index'])[0]
-        classes = interpreter.get_tensor(output_details[1]['index'])[0]
-        scores = interpreter.get_tensor(output_details[2]['index'])[0]
-    except IndexError as e:
-        print(f"Error accessing model outputs: {e}")
-        return []
-
-    return process_output((boxes, classes, scores))
+    # 모델 출력 가져오기 및 처리
+    objects = get_objects(interpreter, threshold)
+    return objects
 
 
 def draw_results(image, results):
