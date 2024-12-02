@@ -14,6 +14,8 @@ interpreter.allocate_tensors()
 # 입력 및 출력 텐서 정보 가져오기
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
+print("입력 텐서 세부 사항:", input_details)
+
 
 # 모델 입력 크기 (예: 640x640)
 input_shape = input_details[0]['shape'][1:3]
