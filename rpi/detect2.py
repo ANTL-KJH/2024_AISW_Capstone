@@ -6,7 +6,7 @@ from pycoral.adapters.detect import get_objects
 from pycoral.adapters.detect import BBox
 
 # 설정
-MODEL_PATH = "192_yolo_v8n_full_integer_quant_edgetpy.tflite"  # 모델 경로
+MODEL_PATH = "192_yolov8n_full_integer_quant_edgetpy.tflite"  # 모델 경로
 VIDEO_PATH = "videoplayback.mp4"  # 입력 동영상 경로
 OUTPUT_PATH = "output_video.mp4"  # 결과 저장 경로
 INPUT_RES = (192, 192)  # 모델 입력 해상도
