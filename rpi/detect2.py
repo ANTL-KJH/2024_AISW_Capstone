@@ -1,75 +1,55 @@
+from edge_tpu_silva import process_detection
+from picamera2 import Picamera2
 import cv2
 import numpy as np
-from pycoral.utils.edgetpu import make_interpreter
-from pycoral.adapters.common import input_size
-from pycoral.adapters.detect import get_objects
-from pycoral.adapters.detect import BBox
 
-# 설정
-MODEL_PATH = "192_yolov8n_full_integer_quant_edgetpu.tflite"  # 모델 경로
-VIDEO_PATH = "videoplayback.mp4"  # 입력 동영상 경로
-OUTPUT_PATH = "output_video.mp4"  # 결과 저장 경로
-INPUT_RES = (192, 192)  # 모델 입력 해상도
-THRESHOLD = 0.5  # 탐지 임계값
+# 모델 파일 및 설정
+model_path = '192_yolov8n_full_integer_quant_edgetpu.tflite'
+imgsz = 192
 
-# Edge TPU 인터프리터 생성
-interpreter = make_interpreter(MODEL_PATH)
-interpreter.allocate_tensors()
+# Picamera2 초기화
+picam2 = Picamera2()
+camera_config = picam2.create_preview_configuration(main={"size": (imgsz, imgsz)})
+picam2.configure(camera_config)
+picam2.start()
 
-# 입력 크기 확인
-input_hw = input_size(interpreter)
+try:
+    print("Press 'ESC' to exit.")
+    while True:
+        # Picam에서 프레임 캡처
+        frame = picam2.capture_array()
 
-# 비디오 캡처 설정
-cap = cv2.VideoCapture(VIDEO_PATH)
-if not cap.isOpened():
-    print("동영상을 열 수 없습니다.")
-    exit()
+        # 모델 입력 형식으로 전처리
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # 모델이 RGB 포맷일 경우 변환
+        input_data = np.expand_dims(rgb_frame, axis=0)  # 배치 차원 추가
 
-# 비디오 출력 설정
-frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter(OUTPUT_PATH, fourcc, fps, (frame_width, frame_height))
+        # 객체 탐지 수행
+        outs = process_detection(model_path, input_data, imgsz)
 
-# 동영상 처리
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
+        # 탐지 결과 시각화
+        for result in outs:
+            box, cls, score = result["box"], result["class"], result["score"]
 
-    # 이미지 전처리
-    resized_frame = cv2.resize(frame, input_hw)
-    input_data = np.expand_dims(resized_frame.astype(np.uint8), axis=0)
+            # 박스 좌표 변환
+            ymin, xmin, ymax, xmax = box
+            xmin = int(xmin * frame.shape[1])
+            xmax = int(xmax * frame.shape[1])
+            ymin = int(ymin * frame.shape[0])
+            ymax = int(ymax * frame.shape[0])
 
-    # 모델 실행
-    interpreter.set_tensor(interpreter.get_input_details()[0]['index'], input_data)
-    interpreter.invoke()
+            # 박스 및 레이블 그리기
+            label = f"Class {cls}: {score:.2f}"
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+            cv2.putText(frame, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-    # 결과 가져오기
-    objs = get_objects(interpreter, THRESHOLD)
+        # 결과 표시
+        cv2.imshow("Object Detection", frame)
 
-    # 탐지 결과 그리기
-    for obj in objs:
-        bbox = obj.bbox
-        cv2.rectangle(
-            frame, (bbox.xmin, bbox.ymin), (bbox.xmax, bbox.ymax), (0, 255, 0), 2
-        )
-        label = f"{obj.id}: {obj.score:.2f}"
-        cv2.putText(
-            frame, label, (bbox.xmin, bbox.ymin - 10),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2
-        )
+        # ESC 키로 종료
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
 
-    # 결과 프레임 저장
-    out.write(frame)
-
-    # 결과 프레임 디스플레이 (옵션)
-    cv2.imshow("Detection", frame)
-    if cv2.waitKey(1) & 0xFF == 27:  # ESC 키로 종료
-        break
-
-# 자원 해제
-cap.release()
-out.release()
-cv2.destroyAllWindows()
+finally:
+    # 리소스 정리
+    picam2.stop()
+    cv2.destroyAllWindows()
