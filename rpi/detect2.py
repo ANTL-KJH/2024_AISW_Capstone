@@ -1,53 +1,63 @@
 from edge_tpu_silva import process_detection
-from picamera2 import Picamera2
-import numpy as np
 import cv2
+import numpy as np
 
 # Example Usage with Required Parameters
 model_path = '192_yolov8n_full_integer_quant_edgetpu.tflite'
 imgsz = 192
 
-# Initialize Picamera2
-picam2 = Picamera2()
-camera_config = picam2.create_preview_configuration(main={"size": (imgsz, imgsz)})
-picam2.configure(camera_config)
-picam2.start()
+# OpenCV VideoCapture 초기화
+camera = cv2.VideoCapture(0)  # 0은 기본 카메라를 의미. 다른 카메라 장치를 사용하려면 1, 2, ...로 변경
+
+# 카메라 설정 (해상도 조정)
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, imgsz)
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, imgsz)
+
+if not camera.isOpened():
+    print("Error: Unable to access the camera.")
+    exit()
 
 try:
     print("Press 'ESC' to exit.")
     while True:
-        # Capture frame from Picamera2
-        frame = picam2.capture_array()
+        # 카메라에서 프레임 읽기
+        ret, frame = camera.read()
+        if not ret:
+            print("Error: Unable to read frame.")
+            break
 
-        # Convert frame to the expected input format for the model
+        # 모델 입력 형식으로 프레임 전처리
         resized_frame = cv2.resize(frame, (imgsz, imgsz))
-        rgb_frame = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)  # Convert to RGB if needed
+        rgb_frame = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)  # 모델 입력 형식이 RGB일 경우
+        input_data = np.expand_dims(rgb_frame, axis=0)  # 배치 차원 추가
 
-        # The model expects a batch dimension (expand dims to add batch)
-        input_data = np.expand_dims(rgb_frame, axis=0)
-
-        # Run object detection
+        # 객체 탐지 수행
         outs = process_detection(model_path, input_data, imgsz)
 
-        # Visualize detection results (if needed)
+        # 탐지 결과 시각화
         for result in outs:
-            # Assuming result contains bounding box and class information
             box, cls, score = result["box"], result["class"], result["score"]
 
-            # Draw the bounding box on the original frame
+            # 박스 좌표 변환
             ymin, xmin, ymax, xmax = box
-            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+            xmin = int(xmin * frame.shape[1])
+            xmax = int(xmax * frame.shape[1])
+            ymin = int(ymin * frame.shape[0])
+            ymax = int(ymax * frame.shape[0])
+
+            # 박스 및 레이블 그리기
             label = f"Class {cls}: {score:.2f}"
+            cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
             cv2.putText(frame, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-        # Display the frame with detections
+        # 프레임 출력
         cv2.imshow("Object Detection", frame)
 
-        # Exit on ESC key
+        # ESC 키로 종료
         if cv2.waitKey(1) & 0xFF == 27:
             break
 
 finally:
-    # Clean up
-    picam2.stop()
+    # 리소스 정리
+    camera.release()
     cv2.destroyAllWindows()
