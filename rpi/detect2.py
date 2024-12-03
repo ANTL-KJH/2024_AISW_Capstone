@@ -45,6 +45,12 @@ try:
             ymin = int(ymin * frame_bgr.shape[0])
             ymax = int(ymax * frame_bgr.shape[0])
 
+            # 좌표 값이 이미지 크기를 벗어나지 않도록 제한
+            xmin = max(0, xmin)
+            ymin = max(0, ymin)
+            xmax = min(frame_bgr.shape[1] - 1, xmax)
+            ymax = min(frame_bgr.shape[0] - 1, ymax)
+
             # 박스 및 레이블 그리기
             label = f"Class {cls}: {score:.2f}"
             cv2.rectangle(frame_bgr, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
