@@ -1,4 +1,5 @@
-import libcamera
+from edge_tpu_silva import process_detection
+from picamera2 import Picamera2
 import cv2
 import numpy as np
 
@@ -6,15 +7,25 @@ import numpy as np
 model_path = '192_yolov8n_full_integer_quant_edgetpu.tflite'
 imgsz = 192
 
-# 카메라 초기화
-camera = libcamera.Camera()
-camera.configure()
+# Picamera2 객체 생성
+picam2 = Picamera2()
+
+# 카메라 구성 설정
+camera_config = picam2.create_preview_configuration(main={"size": (imgsz, imgsz)})
+picam2.configure(camera_config)
+
+# 카메라 시작
+picam2.start()
+
+# 카메라 프레임 저장을 위한 버퍼 초기화
+frame_buffer = np.empty((imgsz, imgsz, 3), dtype=np.uint8)
 
 try:
-    print("Press 'ESC' to exit.")
+    print("Press 'ESC' in the OpenCV window to exit.")
+
     while True:
         # 카메라에서 프레임 캡처
-        frame = camera.capture()
+        frame = picam2.capture_array()
 
         # 모델 입력 형식으로 전처리
         input_data = np.expand_dims(frame, axis=0)  # 배치 차원 추가
@@ -48,5 +59,5 @@ try:
 
 finally:
     # 리소스 정리
-    camera.close()
+    picam2.stop()
     cv2.destroyAllWindows()
