@@ -37,7 +37,7 @@ while 1:
     # outs = process_detection(model_path, input_path, imgsz, show=True)
 
     # frame_count = 0
-    start_time = time.time()
+    #start_time = time.time()
     for out in outs:
 
         objs_lst = []
@@ -56,7 +56,7 @@ while 1:
             }
             objs_lst.append(ol)
 
-            print(label)
+            #print(label)
             # print("  id:    ", obj_cls)
             # print("  score: ", conf)
             # print("  bbox:  ", bb)
@@ -66,7 +66,7 @@ while 1:
         # fps = frame_count / elapsed_time
 
         # print (objs_lst, fps)
-        print(objs_lst)
+        #print(objs_lst)
         #print("--- %s seconds ---" % (time.time() - start_time))
 
         # Break the loop if 'esc' key is pressed for video or camera
