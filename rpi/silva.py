@@ -7,7 +7,7 @@ from ultralytics import YOLO
 # model_path = '240_yolov8n_full_integer_quant_edgetpu.tflite'
 # input_path = 'path/to/your/input/video.mp4'
 # input_path = 'obama.jpg'
-imgsz = 240
+imgsz = 192
 
 from picamera2 import Picamera2, Preview
 
