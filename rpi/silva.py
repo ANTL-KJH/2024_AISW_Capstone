@@ -56,7 +56,7 @@ while 1:
             }
             objs_lst.append(ol)
 
-            print(label)
+            #print(label)
             # print("  id:    ", obj_cls)
             # print("  score: ", conf)
             # print("  bbox:  ", bb)
@@ -66,8 +66,8 @@ while 1:
         # fps = frame_count / elapsed_time
 
         # print (objs_lst, fps)
-        print(objs_lst)
-        print("--- %s seconds ---" % (time.time() - start_time))
+        #print(objs_lst)
+        #print("--- %s seconds ---" % (time.time() - start_time))
 
         # Break the loop if 'esc' key is pressed for video or camera
         if cv2.waitKey(1) == 27:
