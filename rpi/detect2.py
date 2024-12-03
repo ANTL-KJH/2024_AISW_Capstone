@@ -59,9 +59,9 @@ try:
             ymax = min(frame_bgr.shape[0] - 1, ymax)
 
             # 박스 및 레이블 그리기
-            label = f"Class {cls}: {score:.2f}"
-            cv2.rectangle(frame_bgr, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-            cv2.putText(frame_bgr, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+            #label = f"Class {cls}: {score:.2f}"
+            #cv2.rectangle(frame_bgr, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+            #cv2.putText(frame_bgr, label, (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
         # 결과 표시
         cv2.imshow("Object Detection", frame_bgr)
