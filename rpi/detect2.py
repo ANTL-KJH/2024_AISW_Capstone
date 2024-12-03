@@ -27,6 +27,9 @@ try:
         # 카메라에서 프레임 캡처
         frame = picam2.capture_array()
 
+        # 프레임 크기 확인
+        print(f"Captured frame size: {frame.shape}")
+
         # 모델 입력 형식으로 전처리
         input_data = np.expand_dims(frame, axis=0)  # 배치 차원 추가
 
@@ -35,6 +38,10 @@ try:
 
         # 탐지 결과 시각화
         frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # OpenCV는 BGR 형식 사용
+
+        # 프레임 크기 확인 (디버깅 용)
+        print(f"Frame BGR size: {frame_bgr.shape}")
+
         for result in outs:
             box, cls, score = result["box"], result["class"], result["score"]
 
