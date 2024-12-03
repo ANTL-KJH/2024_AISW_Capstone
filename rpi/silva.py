@@ -6,21 +6,13 @@ import numpy as np
 model_path = '192_yolov8n_full_integer_quant_edgetpu.tflite'
 imgsz = 192
 
-# Picamera2 객체 생성
-picam2 = Picamera2()
 
-# 카메라 구성 설정
-camera_config = picam2.create_preview_configuration(main={"size": (imgsz, imgsz)})
-picam2.configure(camera_config)
-
-# 카메라 시작
-picam2.start()
 
 # 동영상 스트리밍 처리
 try:
     while True:
         # 카메라에서 프레임 캡처
-        frame = picam2.capture_array()
+
 
         # 객체 분할 수행
         # input_path에 "Camera(0)"을 전달하여 카메라로부터 직접 입력을 받음
@@ -31,4 +23,4 @@ try:
 
 finally:
     # 카메라 종료 및 자원 해제
-    picam2.stop()
+
