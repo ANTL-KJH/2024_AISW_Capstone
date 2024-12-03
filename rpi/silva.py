@@ -21,7 +21,7 @@ model = YOLO(model='192_yolov8n_full_integer_quant_edgetpu.tflite', task="detect
 while 1:
     np_array = camera.capture_array()
     input_path = np_array[:, :, :3]
-    # image = cv2.resize(np_array, (240, 240))
+    image = cv2.resize(np_array, (192, 192))
 
     # input_path = np.expand_dims(np_array, axis=0)
 
