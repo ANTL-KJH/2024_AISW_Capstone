@@ -22,14 +22,12 @@ try:
         # 카메라에서 프레임 캡처
         frame = picam2.capture_array()
 
-        # 모델 입력 형식으로 전처리
-        input_data = np.expand_dims(frame, axis=0)  # 배치 차원 추가
-
         # 객체 분할 수행
-        outs = process_segmentation(model_path=model_path, input_path=None, input_data=input_data, imgsz=imgsz)
+        # input_path에 "Camera(0)"을 전달하여 카메라로부터 직접 입력을 받음
+        outs = process_segmentation(model_path=model_path, input_path="Camera(0)", imgsz=imgsz)
 
         # outs를 활용한 추가 처리가 필요하면 여기에서 진행
-        # 예를 들어, 분할된 객체의 정보 활용 등
+        # 예: 분할된 객체의 정보 활용 등
 
 finally:
     # 카메라 종료 및 자원 해제
