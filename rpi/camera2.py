@@ -5,9 +5,18 @@ from picamera2 import Picamera2
 import cv2
 import numpy as np
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Picamera2 객체 초기화
 picam2 = Picamera2()
 

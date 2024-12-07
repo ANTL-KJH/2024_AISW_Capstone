@@ -42,7 +42,7 @@ function App() {
   }, []);
 
   // 두 서버로부터 로그 데이터를 가져와 병합하는 함수
-  useEffect(() => {
+useEffect(() => {
   const fetchLogs = async () => {
     try {
       const endpoints = [
@@ -56,7 +56,7 @@ function App() {
         responses.map((response) => response.json())
       );
 
-      // 응답받은 로그를 콘솔에 출력
+      // 로그 데이터 검사
       console.log('Logs from server 1:', logsFromBothServers[0]);
       console.log('Logs from server 2:', logsFromBothServers[1]);
 
@@ -76,6 +76,7 @@ function App() {
 
   return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
 }, []);
+
 
   return (
     <div>
