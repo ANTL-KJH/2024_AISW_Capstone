@@ -43,35 +43,39 @@ function App() {
 
   // 두 서버로부터 로그 데이터를 가져와 병합하는 함수
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const endpoints = [
-          'http://165.229.125.63:8000/api/logs',
-          'http://165.229.125.82:8000/api/logs',
-        ];
+  const fetchLogs = async () => {
+    try {
+      const endpoints = [
+        'http://165.229.125.63:8000/logs',
+        'http://165.229.125.84:8000/logs',
+      ];
 
-        // 두 서버에서 동시에 로그 요청
-        const responses = await Promise.all(endpoints.map((url) => fetch(url)));
-        const logsFromBothServers = await Promise.all(
-          responses.map((response) => response.json())
-        );
+      // 두 서버에서 동시에 로그 요청
+      const responses = await Promise.all(endpoints.map((url) => fetch(url)));
+      const logsFromBothServers = await Promise.all(
+        responses.map((response) => response.json())
+      );
 
-        // 로그 병합 후 시간순 정렬
-        const mergedLogs = [...logsFromBothServers[0], ...logsFromBothServers[1]].sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-        );
+      // 응답받은 로그를 콘솔에 출력
+      console.log('Logs from server 1:', logsFromBothServers[0]);
+      console.log('Logs from server 2:', logsFromBothServers[1]);
 
-        setLogs((prevLogs) => [...prevLogs, ...mergedLogs]);
-      } catch (error) {
-        console.error('Error fetching logs:', error);
-      }
-    };
+      // 로그 병합 후 시간순 정렬
+      const mergedLogs = [...logsFromBothServers[0], ...logsFromBothServers[1]].sort(
+        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      );
 
-    // 5초 간격으로 로그를 업데이트
-    const interval = setInterval(fetchLogs, 5000);
+      setLogs((prevLogs) => [...prevLogs, ...mergedLogs]);
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+    }
+  };
 
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
-  }, []);
+  // 5초 간격으로 로그를 업데이트
+  const interval = setInterval(fetchLogs, 5000);
+
+  return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
+}, []);
 
   return (
     <div>
@@ -88,7 +92,7 @@ function App() {
         <div className="cam2">
           {/* Raspberry Pi에서 제공하는 스트리밍 */}
           <img
-            src="http://165.229.125.82:8000/video_feed"
+            src="http://165.229.125.84:8000/video_feed"
             alt="Live Stream CAM2"
             className="camera-video"
           />
