@@ -16,6 +16,7 @@ const center = {
 function App() {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [weatherData, setWeatherData] = useState(null); // 날씨 데이터를 저장할 상태
+  const [logs, setLogs] = useState([]); // 로그 데이터를 저장할 상태
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
@@ -31,7 +32,6 @@ function App() {
           `https://api.openweathermap.org/data/2.5/weather?lat=35.8307&lon=128.75435&appid=${apiKey}&units=metric`
         );
         const data = await response.json();
-        console.log(data);
         setWeatherData(data);
       } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -39,6 +39,38 @@ function App() {
     };
 
     fetchWeatherData();
+  }, []);
+
+  // 두 서버로부터 로그 데이터를 가져와 병합하는 함수
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const endpoints = [
+          'http://165.229.125.63:8000/api/logs',
+          'http://165.229.125.82:8000/api/logs',
+        ];
+
+        // 두 서버에서 동시에 로그 요청
+        const responses = await Promise.all(endpoints.map((url) => fetch(url)));
+        const logsFromBothServers = await Promise.all(
+          responses.map((response) => response.json())
+        );
+
+        // 로그 병합 후 시간순 정렬
+        const mergedLogs = [...logsFromBothServers[0], ...logsFromBothServers[1]].sort(
+          (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+        );
+
+        setLogs((prevLogs) => [...prevLogs, ...mergedLogs]);
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+      }
+    };
+
+    // 5초 간격으로 로그를 업데이트
+    const interval = setInterval(fetchLogs, 5000);
+
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
   }, []);
 
   return (
@@ -62,7 +94,17 @@ function App() {
           />
         </div>
 
-        <div className="system-log">System Log</div>
+        {/* 로그 박스 */}
+        <div className="system-log">
+          <h3>System Log</h3>
+          <ul>
+            {logs.map((log, index) => (
+              <li key={index}>
+                <span>{log.timestamp}</span>: <span>{log.message}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div className="sidebar">
           <div className="current-time">

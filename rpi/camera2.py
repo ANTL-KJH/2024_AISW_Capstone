@@ -17,7 +17,7 @@ picam2.configure(camera_config)
 picam2.start()
 
 # 로그 데이터 관리
-logs = ["one", "two", "three", "four"]  # 로그 메시지 리스트
+logs = ["antl"]  # 로그 메시지
 current_index = 0  # 현재 로그 인덱스
 
 
@@ -45,17 +45,10 @@ async def video_feed():
 @app.get("/api/logs")
 async def get_logs():
     """
-    로그 데이터를 순차적으로 반환.
-    클라이언트가 호출할 때마다 다음 로그를 제공.
+    로그 데이터를 "antl"로 반복적으로 반환.
     """
-    global current_index
-    if current_index < len(logs):
-        log_message = logs[current_index]
-        log_data = {
-            "timestamp": datetime.now().isoformat(),
-            "message": log_message
-        }
-        current_index += 1
-        return JSONResponse(content=[log_data])
-    else:
-        return JSONResponse(content=[])  # 모든 로그를 제공한 이후 빈 배열 반환
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "message": "antl"
+    }
+    return JSONResponse(content=[log_data])
