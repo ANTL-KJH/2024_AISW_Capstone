@@ -42,7 +42,7 @@ async def video_feed():
     return StreamingResponse(generate_video_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
 
 
-@app.get("/logs")
+@app.get("/api/logs")
 async def get_logs():
     """
     로그 데이터를 "antl"로 반복적으로 반환.

@@ -46,8 +46,8 @@ function App() {
   const fetchLogs = async () => {
     try {
       const endpoints = [
-        'http://165.229.125.63:8000/logs',
-        'http://165.229.125.84:8000/logs',
+        'http://165.229.125.63:8000/api/logs',
+        'http://165.229.125.84:8000/api/logs',
       ];
 
       // 두 서버에서 동시에 로그 요청
