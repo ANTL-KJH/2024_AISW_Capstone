@@ -72,7 +72,7 @@ useEffect(() => {
   };
 
   // 5초 간격으로 로그를 업데이트
-  const interval = setInterval(fetchLogs, 5000);
+  const interval = setInterval(fetchLogs, 10000);
 
   return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
 }, []);

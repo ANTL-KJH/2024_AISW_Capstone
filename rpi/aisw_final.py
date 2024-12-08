@@ -165,7 +165,7 @@ async def generate_video_frames():
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-        await asyncio.sleep(0.03)  # 약 30 FPS
+        await asyncio.sleep(0.2)  # 약 5 FPS
 
     picam2.stop()
 
