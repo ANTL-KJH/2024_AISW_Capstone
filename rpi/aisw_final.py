@@ -54,6 +54,10 @@ LED_INVERT = False
 LED_CHANNEL = 0
 strip = PixelStrip(LED_COUNT, GPIO_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 strip.begin()
+picam2 = Picamera2()
+camera_config = picam2.create_preview_configuration(main={"format": 'RGB888', "size": (320, 320)})
+picam2.configure(camera_config)
+picam2.start()
 
 chk = False
 
@@ -90,7 +94,7 @@ def vibLeft_thread():
         if GPIO.input(vibPinLeft) == CHECK_ON:
             print("Detection Left")
             setServoPos1(180)
-            time.sleep(0.3)
+            time.sleep(0.01)
             if chk:
                 p.start(30)
                 for _ in range(3):
@@ -108,7 +112,7 @@ def vibRight_thread():
         if GPIO.input(vibPinRight) == CHECK_ON:
             print("Detection Right")
             setServoPos1(0)
-            time.sleep(0.3)
+            time.sleep(0.01)
             if chk:
                 p.start(30)
                 for _ in range(3):
@@ -127,10 +131,7 @@ imgsz = 320
 # 카메라 영상 스트리밍
 async def generate_video_frames():
     global chk
-    picam2 = Picamera2()
-    camera_config = picam2.create_preview_configuration(main={"format": 'RGB888', "size": (320, 320)})
-    picam2.configure(camera_config)
-    picam2.start()
+
 
     while True:
         frame = picam2.capture_array()
@@ -166,8 +167,6 @@ async def generate_video_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
         await asyncio.sleep(0.2)  # 약 5 FPS
-
-    picam2.stop()
 
 
 @app.get("/video_feed")
