@@ -61,6 +61,7 @@ picam2.start()
 
 chk = False
 label=""
+label_temp=""
 
 # 모터 위치 설정 함수
 def setServoPos1(degree):
@@ -147,7 +148,10 @@ async def generate_video_frames():
                 class_id = int(detection_info['id'])
                 label = detection_info['label']
                 score = detection_info['conf']
-
+                '''
+                if label != label_temp:
+                    label_temp = label
+                '''
                 if label == "Deer" or label == "Wildboar":
                     chk = True
                 else:
@@ -178,11 +182,24 @@ async def video_feed():
 
 @app.get("/api/logs")
 async def get_logs():
-    log_data = {
-        "timestamp": datetime.now().isoformat(),
-        "message": "[Device:0]"+ label +"Detected!!"
-    }
-    return JSONResponse(content=[log_data])
+    global label_temp
+    if label != label_temp:
+        label_temp = label
+
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "message": "[Device:0]" + label + "Detected!!"
+        }
+        return JSONResponse(content=[log_data])
+    else:
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "message": "[Device:0] None Detected!!"
+        }
+        return JSONResponse(content=[log_data])
+
+
+
 
 
 if __name__ == "__main__":
