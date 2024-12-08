@@ -46,7 +46,7 @@ useEffect(() => {
   const fetchLogs = async () => {
     try {
       const endpoints = [
-        'http://165.229.125.63:8000/api/logs',
+        'http://165.229.125.73:8000/api/logs',
         'http://165.229.125.84:8000/api/logs',
       ];
 
@@ -84,7 +84,7 @@ useEffect(() => {
         <div className="cam1">
           {/* Raspberry Pi에서 제공하는 스트리밍 */}
           <img
-            src="http://165.229.125.63:8000/video_feed"
+            src="http://165.229.125.73:8000/video_feed"
             alt="Live Stream CAM1"
             className="camera-video"
           />
