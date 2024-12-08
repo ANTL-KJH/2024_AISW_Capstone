@@ -60,7 +60,7 @@ picam2.configure(camera_config)
 picam2.start()
 
 chk = False
-
+label=""
 
 # 모터 위치 설정 함수
 def setServoPos1(degree):
@@ -133,7 +133,7 @@ imgsz = 320
 # 카메라 영상 스트리밍
 async def generate_video_frames():
     global chk
-
+    global label
 
     while True:
         frame = picam2.capture_array()
@@ -180,7 +180,7 @@ async def video_feed():
 async def get_logs():
     log_data = {
         "timestamp": datetime.now().isoformat(),
-        "message": "antl"
+        "message": "[Device:0]"+ label +"Detected!!"
     }
     return JSONResponse(content=[log_data])
 
