@@ -94,7 +94,7 @@ def vibLeft_thread():
         if GPIO.input(vibPinLeft) == CHECK_ON:
             print("Detection Left")
             setServoPos1(180)
-            time.sleep(0.01)
+            time.sleep(0.3)
             if chk:
                 p.start(30)
                 for _ in range(3):
@@ -112,7 +112,7 @@ def vibRight_thread():
         if GPIO.input(vibPinRight) == CHECK_ON:
             print("Detection Right")
             setServoPos1(0)
-            time.sleep(0.01)
+            time.sleep(0.3)
             if chk:
                 p.start(30)
                 for _ in range(3):
@@ -174,13 +174,6 @@ async def video_feed():
     return StreamingResponse(generate_video_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
 
 
-@app.get("/api/logs")
-async def get_logs():
-    log_data = {
-        "timestamp": datetime.now().isoformat(),
-        "message": "antl"
-    }
-    return JSONResponse(content=[log_data])
 
 
 if __name__ == "__main__":
