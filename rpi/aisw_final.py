@@ -90,6 +90,7 @@ def clear_led(strip):
 # 충격 감지 스레드
 def vibLeft_thread():
     while True:
+        time.sleep(0.01)
         global chk
         if GPIO.input(vibPinLeft) == CHECK_ON:
             print("Detection Left")
@@ -109,6 +110,7 @@ def vibLeft_thread():
 def vibRight_thread():
     while True:
         global chk
+        time.sleep(0.01)
         if GPIO.input(vibPinRight) == CHECK_ON:
             print("Detection Right")
             setServoPos1(0)
@@ -174,6 +176,13 @@ async def video_feed():
     return StreamingResponse(generate_video_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
 
 
+@app.get("/api/logs")
+async def get_logs():
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "message": "antl"
+    }
+    return JSONResponse(content=[log_data])
 
 
 if __name__ == "__main__":
