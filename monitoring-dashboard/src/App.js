@@ -77,7 +77,6 @@ useEffect(() => {
   return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
 }, []);
 
-
   return (
     <div>
       <header className="title">Smart Farm Anti-Theft System</header>
@@ -102,6 +101,7 @@ useEffect(() => {
         {/* 로그 박스 */}
         <div className="system-log">
           <h3>System Log</h3>
+          <div className="system-log-log">
           <ul>
             {logs.map((log, index) => (
               <li key={index}>
@@ -109,6 +109,7 @@ useEffect(() => {
               </li>
             ))}
           </ul>
+          </div>
         </div>
 
         <div className="sidebar">
