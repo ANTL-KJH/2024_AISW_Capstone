@@ -135,6 +135,7 @@ imgsz = 320
 async def generate_video_frames():
     global chk
     global label
+    global label_temp
 
     while True:
         frame = picam2.capture_array()
@@ -148,10 +149,7 @@ async def generate_video_frames():
                 class_id = int(detection_info['id'])
                 label = detection_info['label']
                 score = detection_info['conf']
-                '''
-                if label != label_temp:
-                    label_temp = label
-                '''
+                label_temp = label
                 if label == "Deer" or label == "Wildboar":
                     chk = True
                 else:
@@ -183,19 +181,19 @@ async def video_feed():
 @app.get("/api/logs")
 async def get_logs():
     global label_temp
-    if label != label_temp:
-        label_temp = label
-
+    if label_temp != "":
         log_data = {
             "timestamp": datetime.now().isoformat(),
-            "message": "[Device:0]" + label + "Detected!!"
+            "message": "[Device:0]" + label_temp + "Detected!!"
         }
+        label_temp=""
         return JSONResponse(content=[log_data])
     else:
         log_data = {
             "timestamp": datetime.now().isoformat(),
             "message": "[Device:0] None Detected!!"
         }
+        label_temp = ""
         return JSONResponse(content=[log_data])
 
 
